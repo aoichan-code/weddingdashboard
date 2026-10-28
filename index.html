@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wedding Planner Kolaboratif</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Poppins:wght@300;400;500;600&display=swap');
+        body { font-family: 'Poppins', sans-serif; background-color: #fff1f2; }
+        h1, h2, h3, .font-serif { font-family: 'Playfair Display', serif; }
+        .tab-active { border-bottom: 2px solid #be123c; color: #be123c; font-weight: 600; }
+        .tab-inactive { color: #6b7280; }
+        .tab-inactive:hover { color: #9f1239; }
+        #auth-loader { display: none; }
+    </style>
+</head>
+<body class="text-gray-800 antialiased selection:bg-rose-200 selection:text-rose-900">
+
+    <div id="auth-screen" class="min-h-screen flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-xl border border-gray-100 p-8 w-full max-w-md border-t-4 border-t-rose-500">
+            <div class="text-center mb-8">
+                <i class="fa-solid fa-rings-wedding text-4xl text-rose-600 mb-3"></i>
+                <h2 class="text-3xl font-bold text-rose-800 font-serif">Bismillah 2027</h2>
+                <p class="text-gray-500 mt-2 text-sm">Silakan masuk untuk merencanakan pernikahan Anda.</p>
+            </div>
+            <form id="auth-form" onsubmit="handleAuth(event)">
+                <div class="mb-4">
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Email</label>
+                    <input type="email" id="auth-email" required placeholder="pasangan@email.com" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-rose-500">
+                </div>
+                <div class="mb-6">
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Password</label>
+                    <input type="password" id="auth-password" required placeholder="Minimal 6 karakter" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-rose-500">
+                </div>
+                <p id="auth-error" class="text-red-500 text-sm mb-4 hidden text-center"></p>
+                <button type="submit" id="btn-login" class="w-full bg-rose-600 hover:bg-rose-700 text-white font-semibold py-3 px-4 rounded-xl shadow-sm transition-all duration-200 mb-3">Masuk</button>
+                <button type="button" id="btn-register" onclick="handleRegister()" class="w-full bg-white hover:bg-gray-50 text-rose-600 border border-rose-200 font-semibold py-3 px-4 rounded-xl transition-all duration-200">Daftar Akun Baru</button>
+            </form>
+            <div id="auth-loader" class="text-center py-6 text-rose-500">
+                <i class="fa-solid fa-spinner fa-spin text-3xl"></i>
+                <p class="mt-2 font-medium">Memproses...</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="app-screen" class="hidden">
+        <header class="bg-white shadow-sm sticky top-0 z-50">
+            <div class="max-w-5xl mx-auto px-4 py-4 flex justify-between items-center">
+                <h1 class="text-xl md:text-2xl font-bold text-rose-700 truncate"><i class="fa-solid fa-rings-wedding mr-2"></i>Our Wedding Planner</h1>
+                <div class="flex items-center space-x-4">
+                    <div class="hidden md:flex items-center space-x-2 text-sm text-gray-500 bg-gray-50 px-3 py-1 rounded-full border border-gray-100">
+                        <span id="status-indicator" class="w-2.5 h-2.5 rounded-full bg-red-500"></span>
+                        <span id="status-text" class="font-medium">Online</span>
+                    </div>
+                    <button onclick="handleLogout()" class="text-sm font-semibold text-gray-600 hover:text-rose-600 transition-colors"><i class="fa-solid fa-right-from-bracket mr-1"></i> Keluar</button>
+                </div>
+            </div>
+        </header>
+
+        <main class="max-w-5xl mx-auto px-4 py-8">
+            <div class="flex border-b border-gray-200 mb-6 space-x-2">
+                <button onclick="switchTab('lamaran')" id="tab-lamaran" class="py-3 px-6 text-lg focus:outline-none transition-colors tab-active rounded-t-lg hover:bg-rose-50 bg-white">Persiapan Lamaran</button>
+                <button onclick="switchTab('nikahan')" id="tab-nikahan" class="py-3 px-6 text-lg focus:outline-none transition-colors tab-inactive rounded-t-lg hover:bg-gray-50">Persiapan Wedding</button>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="md:col-span-1">
+                    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 sticky top-24">
+                        <h3 class="text-lg font-bold text-rose-700 mb-4 border-b border-gray-100 pb-2" id="form-title">Tambah Pengeluaran</h3>
+                        <form id="budget-form" onsubmit="saveBudgetItem(event)">
+                            <input type="hidden" id="item-id">
+                            <div class="mb-4">
+                                <label class="block text-sm font-semibold text-gray-700 mb-1">Nama Item</label>
+                                <input type="text" id="item-name" required placeholder="Misal: Catering" class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-rose-500">
+                            </div>
+                            <div class="mb-4">
+                                <label class="block text-sm font-semibold text-gray-700 mb-1">Budget (Estimasi) Rp</label>
+                                <input type="number" id="item-estimasi" required placeholder="0" class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-rose-500">
+                            </div>
+                            <div class="mb-4">
+                                <label class="block text-sm font-semibold text-gray-700 mb-1">Biaya Aktual Rp</label>
+                                <input type="number" id="item-aktual" placeholder="0" class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-rose-500">
+                            </div>
+                            <div class="mb-6">
+                                <label class="block text-sm font-semibold text-gray-700 mb-1">Keterangan Opsional</label>
+                                <input type="text" id="item-note" placeholder="Misal: Warna Gold" class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-rose-500">
+                            </div>
+                            <div class="flex space-x-3">
+                                <button type="submit" id="btn-save" class="flex-1 bg-rose-600 hover:bg-rose-700 text-white font-semibold py-2.5 px-4 rounded-xl shadow-sm transition-all duration-200">Simpan</button>
+                                <button type="button" id="btn-cancel" onclick="resetForm()" class="hidden flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-2.5 px-4 rounded-xl">Batal</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="md:col-span-2">
+                    <div class="grid grid-cols-2 gap-4 mb-6">
+                        <div class="bg-gradient-to-br from-rose-50 to-white rounded-2xl p-5 border border-rose-100 shadow-sm relative overflow-hidden">
+                            <p class="text-sm text-rose-600 font-semibold mb-1 relative z-10">Total Estimasi <span id="summary-title-est"></span></p>
+                            <h4 class="text-2xl md:text-3xl font-bold text-rose-900 relative z-10" id="total-estimasi">Rp 0</h4>
+                        </div>
+                        <div class="bg-gradient-to-br from-emerald-50 to-white rounded-2xl p-5 border border-emerald-100 shadow-sm relative overflow-hidden">
+                            <p class="text-sm text-emerald-600 font-semibold mb-1 relative z-10">Total Aktual (Terbayar)</p>
+                            <h4 class="text-2xl md:text-3xl font-bold text-emerald-900 relative z-10" id="total-aktual">Rp 0</h4>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 min-h-[400px]">
+                        <div class="flex justify-between items-center mb-5 border-b border-gray-100 pb-3">
+                            <h3 class="text-xl font-bold text-gray-800" id="list-title">Daftar Pengeluaran</h3>
+                            <span class="text-xs bg-rose-100 text-rose-700 px-3 py-1.5 rounded-full font-bold shadow-sm" id="item-count">0 Item</span>
+                        </div>
+                        <div id="budget-list" class="space-y-3">
+                            <div class="text-center py-10 text-gray-400">Memuat data...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // === GANTI BAGIAN INI DENGAN KODE DARI FIREBASE ANDA ===
+        const firebaseConfig = {
+            // apiKey: "GANTI_DENGAN_API_KEY_ANDA",
+            // authDomain: "GANTI_DENGAN_AUTH_DOMAIN_ANDA",
+            // databaseURL: "GANTI_DENGAN_DATABASE_URL_ANDA",
+            // projectId: "wedding-planner-c23c1",
+            // storageBucket: "GANTI_DENGAN_STORAGE_BUCKET_ANDA",
+            // messagingSenderId: "GANTI_DENGAN_SENDER_ID_ANDA",
+            // appId: "GANTI_DENGAN_APP_ID_ANDA",
+            apiKey: "AIzaSyDJLcsdfehGYG_IA_k6cIlBX2XqbbxO9BY",
+            authDomain: "wedding-planner-c23c1.firebaseapp.com",
+            databaseURL: "https://wedding-planner-c23c1-default-rtdb.firebaseio.com",
+            projectId: "wedding-planner-c23c1",
+            storageBucket: "wedding-planner-c23c1.firebasestorage.app",
+            messagingSenderId: "848634853179",
+            appId: "1:848634853179:web:f53582b92e6b83c200a91e",
+            measurementId: "G-763K2JP176"
+        };
+        // =======================================================
+
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const database = firebase.database();
+        
+        let currentUser = null;
+        let currentTab = 'lamaran'; 
+        let budgetData = { lamaran: {}, nikahan: {} };
+
+        const defaultItems = {
+            lamaran: [
+                { id: 'l1', name: 'Cincin', estimasi: 0, aktual: 0, note: 'Toko Emas (Warna Gold)', paid: false },
+                { id: 'l2', name: 'Baju Lamaran Couple', estimasi: 0, aktual: 0, note: 'Shopee (Abu-abu)', paid: false },
+                { id: 'l3', name: 'Hias Seserahan', estimasi: 0, aktual: 0, note: 'WO (Abu-abu)', paid: false }
+            ],
+            nikahan: [
+                { id: 'n1', name: 'Dokumen Pernikahan', estimasi: 0, aktual: 0, note: 'KUA', paid: false },
+                { id: 'n2', name: 'Berkas FC Calon', estimasi: 0, aktual: 0, note: 'Kasih Pak RT', paid: false }
+            ]
+        };
+
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                currentUser = user;
+                document.getElementById('auth-screen').classList.add('hidden');
+                document.getElementById('app-screen').classList.remove('hidden');
+                document.getElementById('status-indicator').classList.replace('bg-red-500', 'bg-green-500');
+                loadData();
+            } else {
+                currentUser = null;
+                document.getElementById('auth-screen').classList.remove('hidden');
+                document.getElementById('app-screen').classList.add('hidden');
+            }
+        });
+
+        function showAuthLoading(show) {
+            document.getElementById('auth-form').style.display = show ? 'none' : 'block';
+            document.getElementById('auth-loader').style.display = show ? 'block' : 'none';
+        }
+
+        function handleAuth(e) {
+            e.preventDefault();
+            const email = document.getElementById('auth-email').value;
+            const password = document.getElementById('auth-password').value;
+            const errorMsg = document.getElementById('auth-error');
+            errorMsg.classList.add('hidden');
+            showAuthLoading(true);
+            auth.signInWithEmailAndPassword(email, password)
+                .then(() => showAuthLoading(false))
+                .catch((error) => {
+                    showAuthLoading(false);
+                    errorMsg.innerText = "Gagal masuk: " + error.message;
+                    errorMsg.classList.remove('hidden');
+                });
+        }
+
+        function handleRegister() {
+            const email = document.getElementById('auth-email').value;
+            const password = document.getElementById('auth-password').value;
+            const errorMsg = document.getElementById('auth-error');
+            if(!email || !password || password.length < 6) {
+                errorMsg.innerText = "Masukkan email dan password minimal 6 karakter.";
+                errorMsg.classList.remove('hidden');
+                return;
+            }
+            errorMsg.classList.add('hidden');
+            showAuthLoading(true);
+            auth.createUserWithEmailAndPassword(email, password)
+                .then(() => {
+                    showAuthLoading(false);
+                    alert("Akun berhasil dibuat! Silakan mulai merencanakan.");
+                })
+                .catch((error) => {
+                    showAuthLoading(false);
+                    errorMsg.innerText = "Gagal mendaftar: " + error.message;
+                    errorMsg.classList.remove('hidden');
+                });
+        }
+
+        function handleLogout() {
+            auth.signOut().then(() => {
+                document.getElementById('auth-email').value = '';
+                document.getElementById('auth-password').value = '';
+            });
+        }
+
+        function loadData() {
+            const dbRef = database.ref('wedding-budget-shared');
+            dbRef.on('value', (snapshot) => {
+                const data = snapshot.val();
+                if (data) budgetData = data;
+                else populateDefaultData();
+                renderList();
+            });
+        }
+
+        function populateDefaultData() {
+            defaultItems.lamaran.forEach(item => budgetData.lamaran[item.id] = item);
+            defaultItems.nikahan.forEach(item => budgetData.nikahan[item.id] = item);
+            syncData();
+        }
+
+        function syncData() {
+            if(currentUser) database.ref('wedding-budget-shared').set(budgetData);
+        }
+
+        function switchTab(tab) {
+            currentTab = tab;
+            const activeClass = 'py-3 px-6 text-lg focus:outline-none transition-colors tab-active rounded-t-lg hover:bg-rose-50 bg-white';
+            const inactiveClass = 'py-3 px-6 text-lg focus:outline-none transition-colors tab-inactive rounded-t-lg hover:bg-gray-50';
+            document.getElementById('tab-lamaran').className = tab === 'lamaran' ? activeClass : inactiveClass;
+            document.getElementById('tab-nikahan').className = tab === 'nikahan' ? activeClass : inactiveClass;
+            document.getElementById('list-title').innerText = tab === 'lamaran' ? 'List Persiapan Lamaran' : 'List Persiapan Wedding';
+            document.getElementById('summary-title-est').innerText = tab === 'lamaran' ? 'Lamaran' : 'Wedding';
+            resetForm();
+            renderList();
+        }
+
+        function formatRupiah(number) {
+            return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(number || 0);
+        }
+
+        function renderList() {
+            const listContainer = document.getElementById('budget-list');
+            listContainer.innerHTML = '';
+            let totalEst = 0, totalAct = 0, count = 0;
+            const items = budgetData[currentTab] || {};
+            
+            if (Object.keys(items).length === 0) {
+                listContainer.innerHTML = '<div class="text-center py-10 text-gray-400 bg-gray-50 rounded-xl border border-dashed border-gray-300">Belum ada data.</div>';
+            }
+
+            for (const key in items) {
+                const item = items[key];
+                totalEst += parseInt(item.estimasi) || 0;
+                if(item.paid) totalAct += parseInt(item.aktual) || 0;
+                count++;
+
+                const div = document.createElement('div');
+                div.className = `flex flex-col sm:flex-row sm:items-center justify-between p-4 rounded-xl border transition-all duration-200 group ${item.paid ? 'bg-gray-50 border-gray-200 opacity-75' : 'bg-white border-rose-100 hover:shadow-md'}`;
+                div.innerHTML = `
+                    <div class="flex items-start sm:items-center space-x-4 flex-1 mb-3 sm:mb-0">
+                        <div class="mt-1 sm:mt-0"><input type="checkbox" ${item.paid ? 'checked' : ''} onchange="togglePaid('${key}', this.checked)" class="w-6 h-6 text-rose-600 rounded cursor-pointer"></div>
+                        <div class="flex-1">
+                            <h4 class="text-base sm:text-lg font-semibold ${item.paid ? 'text-gray-400 line-through' : 'text-gray-800'}">${item.name}</h4>
+                            <div class="flex flex-col sm:flex-row sm:items-center text-sm text-gray-500 sm:space-x-4 mt-1">
+                                <span><i class="fa-solid fa-bullseye w-4 text-rose-300"></i> Est: ${formatRupiah(item.estimasi)}</span>
+                                <span class="${item.paid ? 'text-emerald-600 font-semibold' : ''}"><i class="fa-solid fa-wallet w-4 text-emerald-400"></i> Akt: ${formatRupiah(item.aktual)}</span>
+                                ${item.note ? `<span class="italic text-gray-400 mt-1 sm:mt-0"><i class="fa-solid fa-tag w-4"></i> ${item.note}</span>` : ''}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex space-x-2 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity justify-end">
+                        <button onclick="editItem('${key}')" class="text-blue-600 bg-blue-50 hover:bg-blue-600 hover:text-white w-10 h-10 rounded-full"><i class="fa-solid fa-pen"></i></button>
+                        <button onclick="deleteItem('${key}')" class="text-red-600 bg-red-50 hover:bg-red-600 hover:text-white w-10 h-10 rounded-full"><i class="fa-solid fa-trash"></i></button>
+                    </div>
+                `;
+                listContainer.appendChild(div);
+            }
+            document.getElementById('total-estimasi').innerText = formatRupiah(totalEst);
+            document.getElementById('total-aktual').innerText = formatRupiah(totalAct);
+            document.getElementById('item-count').innerText = `${count} Item`;
+        }
+
+        function saveBudgetItem(e) {
+            e.preventDefault();
+            const id = document.getElementById('item-id').value || 'item_' + Date.now();
+            if (!budgetData[currentTab]) budgetData[currentTab] = {};
+            budgetData[currentTab][id] = {
+                id: id,
+                name: document.getElementById('item-name').value,
+                estimasi: document.getElementById('item-estimasi').value || 0,
+                aktual: document.getElementById('item-aktual').value || 0,
+                note: document.getElementById('item-note').value,
+                paid: (budgetData[currentTab][id] && budgetData[currentTab][id].paid) ? true : false
+            };
+            syncData();
+            resetForm();
+        }
+
+        function editItem(id) {
+            const item = budgetData[currentTab][id];
+            if(item) {
+                document.getElementById('item-id').value = id;
+                document.getElementById('item-name').value = item.name;
+                document.getElementById('item-estimasi').value = item.estimasi;
+                document.getElementById('item-aktual').value = item.aktual;
+                document.getElementById('item-note').value = item.note || '';
+                document.getElementById('form-title').innerText = "Edit Pengeluaran";
+                document.getElementById('btn-save').innerText = "Update Data";
+                const btnSave = document.getElementById('btn-save');
+                btnSave.classList.remove('bg-rose-600', 'hover:bg-rose-700');
+                btnSave.classList.add('bg-blue-600', 'hover:bg-blue-700');
+                document.getElementById('btn-cancel').classList.remove('hidden');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        }
+
+        function resetForm() {
+            document.getElementById('budget-form').reset();
+            document.getElementById('item-id').value = '';
+            document.getElementById('form-title').innerText = "Tambah Pengeluaran";
+            document.getElementById('btn-save').innerText = "Simpan";
+            const btnSave = document.getElementById('btn-save');
+            btnSave.classList.remove('bg-blue-600', 'hover:bg-blue-700');
+            btnSave.classList.add('bg-rose-600', 'hover:bg-rose-700');
+            document.getElementById('btn-cancel').classList.add('hidden');
+        }
+
+        function deleteItem(id) {
+            if(confirm('Yakin ingin menghapus item ini?')) {
+                delete budgetData[currentTab][id];
+                syncData();
+            }
+        }
+
+        function togglePaid(id, isPaid) {
+            if(budgetData[currentTab] && budgetData[currentTab][id]) {
+                budgetData[currentTab][id].paid = isPaid;
+                syncData();
+            }
+        }
+    </script>
+</body>
+</html>
