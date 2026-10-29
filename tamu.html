@@ -44,7 +44,6 @@
             </nav>
 
             <section class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <!-- FORM INPUT TAMU -->
                 <div class="md:col-span-1">
                     <div class="bg-white rounded-2xl shadow-sm border border-rose-100 p-5 sticky top-20">
                         <h3 id="tamu-form-title" class="text-base font-bold text-rose-900 mb-4 border-b border-gray-100 pb-2">Tambah Tamu</h3>
@@ -82,12 +81,9 @@
                     </div>
                 </div>
 
-                <!-- DAFTAR TAMU & STATISTIK -->
                 <div class="md:col-span-2 space-y-4">
-                    <!-- RINGKASAN JUMLAH PAX -->
                     <div id="tamu-pihak-summary" class="grid grid-cols-2 gap-3"></div>
 
-                    <!-- FILTER PIHAK TAMU -->
                     <div class="flex flex-wrap gap-2 bg-white p-2 rounded-2xl border border-rose-100 shadow-sm text-xs">
                         <button onclick="filterPihak('semua')" id="filter-pihak-semua" class="px-3 py-1.5 rounded-xl font-bold bg-rose-600 text-white">Semua Pihak</button>
                         <button onclick="filterPihak('Pihak Cewe')" id="filter-pihak-cewe" class="px-3 py-1.5 rounded-xl font-medium bg-gray-100 text-gray-600 hover:bg-rose-50">Pihak Cewe</button>
@@ -137,9 +133,9 @@
                     <span class="text-[10px] uppercase font-bold text-pink-600 block">Pihak Cewe</span>
                     <h5 class="text-base sm:text-lg font-bold text-pink-900">${paxPihak['Pihak Cewe']} Pax</h5>
                 </div>
-                <div class="bg-blue-50 p-3 rounded-xl border border-blue-100 text-center">
-                    <span class="text-[10px] uppercase font-bold text-blue-600 block">Pihak Cowo</span>
-                    <h5 class="text-base sm:text-lg font-bold text-blue-900">${paxPihak['Pihak Cowo']} Pax</h5>
+                <div class="bg-rose-50 p-3 rounded-xl border border-rose-100 text-center">
+                    <span class="text-[10px] uppercase font-bold text-rose-600 block">Pihak Cowo</span>
+                    <h5 class="text-base sm:text-lg font-bold text-rose-900">${paxPihak['Pihak Cowo']} Pax</h5>
                 </div>
             `;
 
@@ -156,13 +152,13 @@
                 }
                 totalTamu++;
 
-                const pihakBadgeColor = itemPihak === 'Pihak Cowo' ? 'bg-blue-100 text-blue-700' : 'bg-pink-100 text-pink-700';
+                const pihakBadgeColor = itemPihak === 'Pihak Cowo' ? 'bg-rose-100 text-rose-800' : 'bg-pink-100 text-pink-700';
 
                 const div = document.createElement('div');
-                div.className = `flex flex-col sm:flex-row sm:items-center justify-between p-4 rounded-xl border transition-all duration-200 ${item.sent ? 'bg-indigo-50/30 border-indigo-200' : 'bg-white border-rose-100 hover:shadow-sm'}`;
+                div.className = `flex flex-col sm:flex-row sm:items-center justify-between p-4 rounded-xl border transition-all duration-200 ${item.sent ? 'bg-emerald-50/40 border-emerald-200' : 'bg-white border-rose-100 hover:shadow-sm'}`;
                 div.innerHTML = `
                     <div class="flex items-start sm:items-center space-x-3 flex-1 mb-2 sm:mb-0">
-                        <input type="checkbox" ${item.sent ? 'checked' : ''} onchange="toggleTamuSent('${key}', this.checked)" class="w-5 h-5 mt-0.5 sm:mt-0 text-indigo-600 rounded focus:ring-indigo-500 cursor-pointer">
+                        <input type="checkbox" ${item.sent ? 'checked' : ''} onchange="toggleTamuSent('${key}', this.checked)" class="w-5 h-5 mt-0.5 sm:mt-0 text-rose-600 rounded focus:ring-rose-500 cursor-pointer">
                         <div>
                             <div class="flex items-center space-x-2">
                                 <h4 class="font-semibold text-sm ${item.sent ? 'text-gray-500' : 'text-gray-800'}">${item.name}</h4>
@@ -170,7 +166,7 @@
                             </div>
                             <div class="flex flex-wrap items-center gap-2 text-xs text-gray-500 mt-1">
                                 ${item.alamat ? `<span class="text-gray-600"><i class="fa-solid fa-location-dot text-rose-400 mr-1"></i>${item.alamat}</span>` : ''}
-                                <span><i class="fa-solid fa-users text-indigo-400 mr-1"></i>${item.pax} Pax</span>
+                                <span><i class="fa-solid fa-users text-rose-400 mr-1"></i>${item.pax} Pax</span>
                                 ${item.sent ? '<span class="text-emerald-600 font-semibold"><i class="fa-solid fa-check mr-1"></i>Undangan Terkirim</span>' : '<span class="text-amber-600"><i class="fa-solid fa-clock mr-1"></i>Belum dikirim</span>'}
                             </div>
                         </div>

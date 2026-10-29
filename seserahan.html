@@ -46,16 +46,16 @@
             <section class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div class="md:col-span-1">
                     <div class="bg-white rounded-2xl shadow-sm border border-rose-100 p-5 sticky top-20">
-                        <h3 id="seserahan-form-title" class="text-base font-bold text-purple-900 mb-4 border-b border-gray-100 pb-2">Tambah Seserahan</h3>
+                        <h3 id="seserahan-form-title" class="text-base font-bold text-rose-900 mb-4 border-b border-gray-100 pb-2">Tambah Seserahan</h3>
                         <form id="seserahan-form" onsubmit="saveSeserahanItem(event)">
                             <input type="hidden" id="seserahan-id">
                             <div class="mb-3">
                                 <label class="block text-xs font-semibold text-gray-700 mb-1">Nama Barang</label>
-                                <input type="text" id="seserahan-name" required placeholder="Misal: Mukena Silk / Kemeja Kerja" class="w-full px-3.5 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-purple-500">
+                                <input type="text" id="seserahan-name" required placeholder="Misal: Mukena Silk / Kemeja Kerja" class="w-full px-3.5 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-rose-500">
                             </div>
                             <div class="mb-3">
                                 <label class="block text-xs font-semibold text-gray-700 mb-1">Kategori Seserahan</label>
-                                <select id="seserahan-category" required class="w-full px-3.5 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-purple-500">
+                                <select id="seserahan-category" required class="w-full px-3.5 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-rose-500">
                                     <option value="Seserahan Cewe">Seserahan Cewe (Pria ke Wanita)</option>
                                     <option value="Seserahan Cowo">Seserahan Cowo (Angsul-angsul)</option>
                                     <option value="Seserahan Adat">Seserahan Adat / Tradisional</option>
@@ -63,22 +63,22 @@
                             </div>
                             <div class="mb-3">
                                 <label class="block text-xs font-semibold text-gray-700 mb-1">Tema Warna / Merek</label>
-                                <input type="text" id="seserahan-brand" placeholder="Misal: Wardah / Hitam-Gold" class="w-full px-3.5 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-purple-500">
+                                <input type="text" id="seserahan-brand" placeholder="Misal: Wardah / Hitam-Gold" class="w-full px-3.5 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-rose-500">
                             </div>
                             <div class="mb-3">
                                 <label class="block text-xs font-semibold text-gray-700 mb-1">Link Pembelian Online (Web/URL)</label>
-                                <input type="url" id="seserahan-link" placeholder="https://shopee.co.id/..." class="w-full px-3.5 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-purple-500">
+                                <input type="url" id="seserahan-link" placeholder="https://shopee.co.id/..." class="w-full px-3.5 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-rose-500">
                             </div>
                             <div class="mb-3">
                                 <label class="block text-xs font-semibold text-gray-700 mb-1">Estimasi Harga (Rp)</label>
-                                <input type="number" id="seserahan-estimasi" placeholder="0" class="w-full px-3.5 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-purple-500">
+                                <input type="number" id="seserahan-estimasi" placeholder="0" class="w-full px-3.5 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-rose-500">
                             </div>
                             <div class="mb-4">
                                 <label class="block text-xs font-semibold text-gray-700 mb-1">Realisasi Harga (Rp)</label>
-                                <input type="number" id="seserahan-aktual" placeholder="0" class="w-full px-3.5 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-purple-500">
+                                <input type="number" id="seserahan-aktual" placeholder="0" class="w-full px-3.5 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-rose-500">
                             </div>
                             <div class="flex space-x-2">
-                                <button type="submit" id="btn-save-seserahan" class="flex-1 bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2.5 rounded-xl text-sm transition">Simpan</button>
+                                <button type="submit" id="btn-save-seserahan" class="flex-1 bg-rose-600 hover:bg-rose-700 text-white font-semibold py-2.5 rounded-xl text-sm transition">Simpan</button>
                                 <button type="button" id="btn-cancel-seserahan" onclick="resetSeserahanForm()" class="hidden bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-2.5 px-4 rounded-xl text-sm transition">Batal</button>
                             </div>
                         </form>
@@ -87,16 +87,16 @@
 
                 <div class="md:col-span-2 space-y-4">
                     <div class="flex flex-wrap gap-2 bg-white p-2 rounded-2xl border border-rose-100 shadow-sm text-xs">
-                        <button onclick="filterSeserahan('semua')" id="filter-seserahan-semua" class="px-3 py-1.5 rounded-xl font-bold bg-purple-600 text-white">Semua</button>
-                        <button onclick="filterSeserahan('Seserahan Cewe')" id="filter-seserahan-cewe" class="px-3 py-1.5 rounded-xl font-medium bg-gray-100 text-gray-600 hover:bg-purple-50">Seserahan Cewe</button>
-                        <button onclick="filterSeserahan('Seserahan Cowo')" id="filter-seserahan-cowo" class="px-3 py-1.5 rounded-xl font-medium bg-gray-100 text-gray-600 hover:bg-purple-50">Seserahan Cowo</button>
-                        <button onclick="filterSeserahan('Seserahan Adat')" id="filter-seserahan-adat" class="px-3 py-1.5 rounded-xl font-medium bg-gray-100 text-gray-600 hover:bg-purple-50">Seserahan Adat</button>
+                        <button onclick="filterSeserahan('semua')" id="filter-seserahan-semua" class="px-3 py-1.5 rounded-xl font-bold bg-rose-600 text-white">Semua</button>
+                        <button onclick="filterSeserahan('Seserahan Cewe')" id="filter-seserahan-cewe" class="px-3 py-1.5 rounded-xl font-medium bg-gray-100 text-gray-600 hover:bg-rose-50">Seserahan Cewe</button>
+                        <button onclick="filterSeserahan('Seserahan Cowo')" id="filter-seserahan-cowo" class="px-3 py-1.5 rounded-xl font-medium bg-gray-100 text-gray-600 hover:bg-rose-50">Seserahan Cowo</button>
+                        <button onclick="filterSeserahan('Seserahan Adat')" id="filter-seserahan-adat" class="px-3 py-1.5 rounded-xl font-medium bg-gray-100 text-gray-600 hover:bg-rose-50">Seserahan Adat</button>
                     </div>
 
                     <div class="bg-white rounded-2xl shadow-sm border border-rose-100 p-5">
                         <div class="flex justify-between items-center mb-4 border-b border-gray-100 pb-3">
                             <h3 class="font-bold text-gray-800">Daftar Barang Seserahan</h3>
-                            <span id="seserahan-count-badge" class="text-xs bg-purple-100 text-purple-700 font-bold px-2.5 py-1 rounded-full">0 Barang</span>
+                            <span id="seserahan-count-badge" class="text-xs bg-rose-100 text-rose-700 font-bold px-2.5 py-1 rounded-full">0 Barang</span>
                         </div>
                         <div id="seserahan-item-list" class="space-y-3">
                             <p class="text-center text-gray-400 py-8 text-sm">Memuat data...</p>
@@ -127,17 +127,17 @@
                 count++;
 
                 const div = document.createElement('div');
-                div.className = `flex flex-col sm:flex-row sm:items-center justify-between p-4 rounded-xl border transition-all duration-200 ${item.paid ? 'bg-purple-50/40 border-purple-200' : 'bg-white border-rose-100 hover:shadow-sm'}`;
+                div.className = `flex flex-col sm:flex-row sm:items-center justify-between p-4 rounded-xl border transition-all duration-200 ${item.paid ? 'bg-emerald-50/40 border-emerald-200' : 'bg-white border-rose-100 hover:shadow-sm'}`;
                 div.innerHTML = `
                     <div class="flex items-start sm:items-center space-x-3 flex-1 mb-2 sm:mb-0">
-                        <input type="checkbox" ${item.paid ? 'checked' : ''} onchange="toggleSeserahanPaid('${key}', this.checked)" class="w-5 h-5 mt-0.5 sm:mt-0 text-purple-600 rounded focus:ring-purple-500 cursor-pointer">
+                        <input type="checkbox" ${item.paid ? 'checked' : ''} onchange="toggleSeserahanPaid('${key}', this.checked)" class="w-5 h-5 mt-0.5 sm:mt-0 text-rose-600 rounded focus:ring-rose-500 cursor-pointer">
                         <div>
                             <h4 class="font-semibold text-sm ${item.paid ? 'line-through text-gray-400' : 'text-gray-800'}">${item.name}</h4>
                             <div class="flex flex-wrap items-center gap-2 text-xs text-gray-500 mt-1">
-                                <span class="bg-purple-100 px-2 py-0.5 rounded text-purple-700 font-medium">${item.category}</span>
-                                ${item.brand ? `<span class="bg-gray-100 px-2 py-0.5 rounded text-gray-600"><i class="fa-solid fa-palette text-purple-400 mr-1"></i>${item.brand}</span>` : ''}
-                                ${item.link ? `<a href="${item.link}" target="_blank" rel="noopener noreferrer" class="bg-purple-50 text-purple-700 hover:bg-purple-100 px-2 py-0.5 rounded font-semibold flex items-center transition"><i class="fa-solid fa-cart-shopping mr-1"></i>Beli Online <i class="fa-solid fa-arrow-up-right-from-square text-[9px] ml-1"></i></a>` : ''}
-                                <span><i class="fa-solid fa-bullseye text-purple-400 mr-1"></i>Est: ${formatRupiah(item.estimasi)}</span>
+                                <span class="bg-rose-100 px-2 py-0.5 rounded text-rose-700 font-medium">${item.category}</span>
+                                ${item.brand ? `<span class="bg-gray-100 px-2 py-0.5 rounded text-gray-600"><i class="fa-solid fa-palette text-rose-400 mr-1"></i>${item.brand}</span>` : ''}
+                                ${item.link ? `<a href="${item.link}" target="_blank" rel="noopener noreferrer" class="bg-rose-50 text-rose-700 hover:bg-rose-100 px-2 py-0.5 rounded font-semibold flex items-center transition"><i class="fa-solid fa-cart-shopping mr-1"></i>Beli Online <i class="fa-solid fa-arrow-up-right-from-square text-[9px] ml-1"></i></a>` : ''}
+                                <span><i class="fa-solid fa-bullseye text-rose-400 mr-1"></i>Est: ${formatRupiah(item.estimasi)}</span>
                                 <span class="${item.paid ? 'text-emerald-700 font-semibold' : ''}"><i class="fa-solid fa-wallet text-emerald-500 mr-1"></i>Realisasi: ${formatRupiah(item.aktual)}</span>
                             </div>
                         </div>
@@ -164,7 +164,7 @@
             for (const key in buttons) {
                 const btn = document.getElementById(buttons[key]);
                 if (btn) {
-                    btn.className = (key === filter) ? "px-3 py-1.5 rounded-xl font-bold bg-purple-600 text-white" : "px-3 py-1.5 rounded-xl font-medium bg-gray-100 text-gray-600 hover:bg-purple-50";
+                    btn.className = (key === filter) ? "px-3 py-1.5 rounded-xl font-bold bg-rose-600 text-white" : "px-3 py-1.5 rounded-xl font-medium bg-gray-100 text-gray-600 hover:bg-rose-50";
                 }
             }
             renderPage();
