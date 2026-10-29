@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Wedding Planner</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Poppins', sans-serif; background-color: #fff1f2; }
+        h1, h2, h3, .font-serif { font-family: 'Playfair Display', serif; }
+        .nav-tab-active { background-color: #be123c; color: #ffffff; font-weight: 600; box-shadow: 0 4px 6px -1px rgba(190, 18, 60, 0.2); }
+        .nav-tab-inactive { color: #4b5563; background-color: #ffffff; }
+        .nav-tab-inactive:hover { background-color: #ffe4e6; color: #9f1239; }
+    </style>
+</head>
+<body class="text-gray-800 antialiased selection:bg-rose-200 selection:text-rose-900">
+
+    <!-- LAYAR AUTENTIKASI -->
+    <div id="auth-screen" class="min-h-screen flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl shadow-xl border border-rose-100 p-8 w-full max-w-md border-t-8 border-t-rose-600">
+            <div class="text-center mb-8">
+                <div class="inline-flex items-center justify-center w-16 h-16 bg-rose-100 text-rose-600 rounded-full mb-3">
+                    <i class="fa-solid fa-heart-ring text-3xl"></i>
+                </div>
+                <h2 class="text-3xl font-bold text-rose-900 font-serif">Bismillah Menikah</h2>
+                <p class="text-gray-500 mt-1 text-sm">Masuk untuk mengelola persiapan bersama</p>
+            </div>
+            
+            <form id="auth-form" onsubmit="handleAuth(event)">
+                <div class="mb-4">
+                    <label class="block text-xs font-bold uppercase tracking-wider text-gray-600 mb-1">Email</label>
+                    <input type="email" id="auth-email" required placeholder="pasangan@email.com" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-rose-500 focus:bg-white transition">
+                </div>
+                <div class="mb-6">
+                    <label class="block text-xs font-bold uppercase tracking-wider text-gray-600 mb-1">Password</label>
+                    <input type="password" id="auth-password" required placeholder="Minimal 6 karakter" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-rose-500 focus:bg-white transition">
+                </div>
+                <p id="auth-error" class="text-red-500 text-sm mb-4 hidden text-center bg-red-50 py-2 rounded-lg border border-red-200"></p>
+                <button type="submit" id="btn-login" class="w-full bg-rose-600 hover:bg-rose-700 text-white font-semibold py-3 px-4 rounded-xl shadow-md transition duration-200 mb-3">
+                    <i class="fa-solid fa-right-to-bracket mr-2"></i> Masuk
+                </button>
+                <button type="button" onclick="handleRegister()" class="w-full bg-white hover:bg-rose-50 text-rose-700 border border-rose-200 font-semibold py-3 px-4 rounded-xl transition duration-200">
+                    Daftar Akun Baru
+                </button>
+            </form>
+            
+            <div id="auth-loader" class="hidden text-center py-8 text-rose-600">
+                <i class="fa-solid fa-circle-notch fa-spin text-4xl mb-2"></i>
+                <p class="font-medium">Memproses data...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- UTAMA DASHBOARD -->
+    <div id="app-screen" class="hidden min-h-screen flex flex-col">
+        <header class="bg-white/90 backdrop-blur-md shadow-sm sticky top-0 z-50 border-b border-rose-100">
+            <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
+                <div class="flex items-center space-x-3">
+                    <i class="fa-solid fa-rings-wedding text-rose-600 text-2xl"></i>
+                    <h1 class="text-xl font-bold text-rose-900 font-serif">Wedding Planner</h1>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="hidden sm:flex items-center space-x-2 text-xs bg-emerald-50 text-emerald-700 px-3 py-1.5 rounded-full border border-emerald-200">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
+                        <span class="font-semibold">Terhubung Real-time</span>
+                    </div>
+                    <button onclick="handleLogout()" class="text-xs font-semibold bg-gray-100 hover:bg-rose-100 text-gray-700 hover:text-rose-700 px-3 py-2 rounded-xl transition">
+                        <i class="fa-solid fa-arrow-right-from-bracket mr-1"></i> Keluar
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <main class="max-w-7xl mx-auto px-4 py-6 flex-1 w-full">
+            <nav class="flex flex-wrap gap-2 mb-8 bg-white p-2 rounded-2xl shadow-sm border border-rose-100">
+                <a href="index.html" class="flex-1 min-w-[120px] py-3 px-3 rounded-xl text-xs md:text-sm flex items-center justify-center space-x-2 nav-tab-active"><i class="fa-solid fa-chart-pie"></i><span>Dashboard</span></a>
+                <a href="lamaran.html" class="flex-1 min-w-[120px] py-3 px-3 rounded-xl text-xs md:text-sm flex items-center justify-center space-x-2 nav-tab-inactive"><i class="fa-solid fa-heart"></i><span>Lamaran</span></a>
+                <a href="nikahan.html" class="flex-1 min-w-[120px] py-3 px-3 rounded-xl text-xs md:text-sm flex items-center justify-center space-x-2 nav-tab-inactive"><i class="fa-solid fa-gem"></i><span>Nikahan</span></a>
+                <a href="seserahan.html" class="flex-1 min-w-[120px] py-3 px-3 rounded-xl text-xs md:text-sm flex items-center justify-center space-x-2 nav-tab-inactive"><i class="fa-solid fa-gift"></i><span>Seserahan</span></a>
+                <a href="administrasi.html" class="flex-1 min-w-[120px] py-3 px-3 rounded-xl text-xs md:text-sm flex items-center justify-center space-x-2 nav-tab-inactive"><i class="fa-solid fa-file-signature"></i><span>Administrasi Nikah</span></a>
+                <a href="tamu.html" class="flex-1 min-w-[120px] py-3 px-3 rounded-xl text-xs md:text-sm flex items-center justify-center space-x-2 nav-tab-inactive"><i class="fa-solid fa-users"></i><span>List Tamu</span></a>
+            </nav>
+
+            <section class="space-y-6">
+                <div class="bg-gradient-to-r from-rose-600 to-pink-500 rounded-3xl p-6 md:p-8 text-white shadow-lg relative overflow-hidden">
+                    <div class="relative z-10">
+                        <h2 class="text-3xl md:text-4xl font-bold font-serif mb-2">Bismillah Menikah 2027</h2>
+                        <div class="flex flex-wrap gap-4 text-xs md:text-sm text-rose-100 mt-3">
+                            <span class="bg-white/20 px-3 py-1.5 rounded-lg backdrop-blur-sm"><i class="fa-solid fa-location-dot mr-1.5"></i>Lokasi Lamaran: <strong>Rumah sindi</strong></span>
+                            <span class="bg-white/20 px-3 py-1.5 rounded-lg backdrop-blur-sm"><i class="fa-solid fa-calendar-days mr-1.5"></i>Tanggal Lamaran: <strong>Kapan yaw lamarannya?</strong></span>
+                        </div>
+                    </div>
+                    <i class="fa-solid fa-hand-holding-heart absolute -right-6 -bottom-6 text-9xl text-white/10"></i>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+                    <div class="bg-white rounded-2xl p-4 shadow-sm border border-rose-100">
+                        <div class="flex justify-between items-center mb-2">
+                            <h3 class="font-bold text-xs text-gray-800 flex items-center"><i class="fa-solid fa-heart text-rose-500 mr-1.5"></i> Lamaran</h3>
+                            <span id="dash-lamaran-percent" class="text-xs font-bold text-rose-600 bg-rose-50 px-2 py-0.5 rounded-full">0%</span>
+                        </div>
+                        <div class="w-full bg-gray-100 rounded-full h-2 mb-1.5 overflow-hidden"><div id="dash-lamaran-bar" class="bg-rose-500 h-2 rounded-full transition-all duration-500" style="width: 0%"></div></div>
+                        <p id="dash-lamaran-count" class="text-[10px] text-gray-500">0/0 selesai</p>
+                    </div>
+
+                    <div class="bg-white rounded-2xl p-4 shadow-sm border border-rose-100">
+                        <div class="flex justify-between items-center mb-2">
+                            <h3 class="font-bold text-xs text-gray-800 flex items-center"><i class="fa-solid fa-gem text-rose-500 mr-1.5"></i> Nikahan</h3>
+                            <span id="dash-nikahan-percent" class="text-xs font-bold text-rose-600 bg-rose-50 px-2 py-0.5 rounded-full">0%</span>
+                        </div>
+                        <div class="w-full bg-gray-100 rounded-full h-2 mb-1.5 overflow-hidden"><div id="dash-nikahan-bar" class="bg-rose-600 h-2 rounded-full transition-all duration-500" style="width: 0%"></div></div>
+                        <p id="dash-nikahan-count" class="text-[10px] text-gray-500">0/0 selesai</p>
+                    </div>
+
+                    <div class="bg-white rounded-2xl p-4 shadow-sm border border-rose-100">
+                        <div class="flex justify-between items-center mb-2">
+                            <h3 class="font-bold text-xs text-gray-800 flex items-center"><i class="fa-solid fa-gift text-purple-500 mr-1.5"></i> Seserahan</h3>
+                            <span id="dash-seserahan-percent" class="text-xs font-bold text-purple-600 bg-purple-50 px-2 py-0.5 rounded-full">0%</span>
+                        </div>
+                        <div class="w-full bg-gray-100 rounded-full h-2 mb-1.5 overflow-hidden"><div id="dash-seserahan-bar" class="bg-purple-500 h-2 rounded-full transition-all duration-500" style="width: 0%"></div></div>
+                        <p id="dash-seserahan-count" class="text-[10px] text-gray-500">0/0 siap</p>
+                    </div>
+
+                    <div class="bg-white rounded-2xl p-4 shadow-sm border border-rose-100">
+                        <div class="flex justify-between items-center mb-2">
+                            <h3 class="font-bold text-xs text-gray-800 flex items-center"><i class="fa-solid fa-file-signature text-blue-500 mr-1.5"></i> Administrasi</h3>
+                            <span id="dash-admin-percent" class="text-xs font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full">0%</span>
+                        </div>
+                        <div class="w-full bg-gray-100 rounded-full h-2 mb-1.5 overflow-hidden"><div id="dash-admin-bar" class="bg-blue-500 h-2 rounded-full transition-all duration-500" style="width: 0%"></div></div>
+                        <p id="dash-admin-count" class="text-[10px] text-gray-500">0/0 berkas</p>
+                    </div>
+
+                    <div class="bg-white rounded-2xl p-4 shadow-sm border border-rose-100">
+                        <div class="flex justify-between items-center mb-2">
+                            <h3 class="font-bold text-xs text-gray-800 flex items-center"><i class="fa-solid fa-paper-plane text-pink-500 mr-1.5"></i> Undangan</h3>
+                            <span id="dash-tamu-percent" class="text-xs font-bold text-pink-600 bg-pink-50 px-2 py-0.5 rounded-full">0%</span>
+                        </div>
+                        <div class="w-full bg-gray-100 rounded-full h-2 mb-1.5 overflow-hidden"><div id="dash-tamu-bar" class="bg-pink-500 h-2 rounded-full transition-all duration-500" style="width: 0%"></div></div>
+                        <p id="dash-tamu-count" class="text-[10px] text-gray-500">0/0 terkirim</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="bg-gradient-to-br from-rose-50 to-white p-6 rounded-2xl border border-rose-100 shadow-sm">
+                        <p class="text-xs font-bold uppercase tracking-wider text-rose-600 mb-1">Total Estimasi Budget</p>
+                        <h4 id="dash-total-estimasi" class="text-2xl font-bold text-rose-900">Rp 0</h4>
+                        <span class="text-xs text-gray-400 mt-2 block">Gabungan Seluruh Persiapan & Administrasi</span>
+                    </div>
+                    <div class="bg-gradient-to-br from-emerald-50 to-white p-6 rounded-2xl border border-emerald-100 shadow-sm">
+                        <p class="text-xs font-bold uppercase tracking-wider text-emerald-600 mb-1">Total Realisasi Terbayar</p>
+                        <h4 id="dash-total-aktual" class="text-2xl font-bold text-emerald-900">Rp 0</h4>
+                        <span class="text-xs text-gray-400 mt-2 block">Total pengeluaran ter-checklist lunas</span>
+                    </div>
+                    <div class="bg-gradient-to-br from-indigo-50 to-white p-6 rounded-2xl border border-indigo-100 shadow-sm">
+                        <p class="text-xs font-bold uppercase tracking-wider text-indigo-600 mb-1">Total Tamu (Pax)</p>
+                        <h4 id="dash-total-pax" class="text-2xl font-bold text-indigo-900">0 Orang</h4>
+                        <span id="dash-total-kk" class="text-xs text-gray-400 mt-2 block">0 Kelompok / Kepala Keluarga</span>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="firebase-config.js"></script>
+    <script>
+        function renderPage() {
+            const lamaranItems = Object.values(globalData.lamaran || {});
+            const lamaranDone = lamaranItems.filter(i => i.paid).length;
+            const lamaranPercent = lamaranItems.length ? Math.round((lamaranDone / lamaranItems.length) * 100) : 0;
+            document.getElementById('dash-lamaran-percent').innerText = `${lamaranPercent}%`;
+            document.getElementById('dash-lamaran-bar').style.width = `${lamaranPercent}%`;
+            document.getElementById('dash-lamaran-count').innerText = `${lamaranDone}/${lamaranItems.length} selesai`;
+
+            const nikahanItems = Object.values(globalData.nikahan || {});
+            const nikahanDone = nikahanItems.filter(i => i.paid).length;
+            const nikahanPercent = nikahanItems.length ? Math.round((nikahanDone / nikahanItems.length) * 100) : 0;
+            document.getElementById('dash-nikahan-percent').innerText = `${nikahanPercent}%`;
+            document.getElementById('dash-nikahan-bar').style.width = `${nikahanPercent}%`;
+            document.getElementById('dash-nikahan-count').innerText = `${nikahanDone}/${nikahanItems.length} selesai`;
+
+            const seserahanItems = Object.values(globalData.seserahan || {});
+            const seserahanDone = seserahanItems.filter(s => s.paid).length;
+            const seserahanPercent = seserahanItems.length ? Math.round((seserahanDone / seserahanItems.length) * 100) : 0;
+            document.getElementById('dash-seserahan-percent').innerText = `${seserahanPercent}%`;
+            document.getElementById('dash-seserahan-bar').style.width = `${seserahanPercent}%`;
+            document.getElementById('dash-seserahan-count').innerText = `${seserahanDone}/${seserahanItems.length} siap`;
+
+            const adminItems = Object.values(globalData.administrasi || {});
+            const adminDone = adminItems.filter(a => a.paid).length;
+            const adminPercent = adminItems.length ? Math.round((adminDone / adminItems.length) * 100) : 0;
+            document.getElementById('dash-admin-percent').innerText = `${adminPercent}%`;
+            document.getElementById('dash-admin-bar').style.width = `${adminPercent}%`;
+            document.getElementById('dash-admin-count').innerText = `${adminDone}/${adminItems.length} berkas`;
+
+            const tamuItems = Object.values(globalData.tamu || {});
+            const tamuSent = tamuItems.filter(t => t.sent).length;
+            const tamuPercent = tamuItems.length ? Math.round((tamuSent / tamuItems.length) * 100) : 0;
+            const totalPax = tamuItems.reduce((acc, curr) => acc + (parseInt(curr.pax) || 0), 0);
+            document.getElementById('dash-tamu-percent').innerText = `${tamuPercent}%`;
+            document.getElementById('dash-tamu-bar').style.width = `${tamuPercent}%`;
+            document.getElementById('dash-tamu-count').innerText = `${tamuSent}/${tamuItems.length} terkirim`;
+
+            const totalEst = [...lamaranItems, ...nikahanItems, ...seserahanItems, ...adminItems].reduce((acc, curr) => acc + (parseInt(curr.estimasi) || 0), 0);
+            const totalAct = [...lamaranItems, ...nikahanItems, ...seserahanItems, ...adminItems].reduce((acc, curr) => acc + (curr.paid ? (parseInt(curr.aktual) || 0) : 0), 0);
+
+            document.getElementById('dash-total-estimasi').innerText = formatRupiah(totalEst);
+            document.getElementById('dash-total-aktual').innerText = formatRupiah(totalAct);
+            document.getElementById('dash-total-pax').innerText = `${totalPax} Orang`;
+            document.getElementById('dash-total-kk').innerText = `${tamuItems.length} Kepala Keluarga / Undangan`;
+        }
+    </script>
+</body>
+</html>
